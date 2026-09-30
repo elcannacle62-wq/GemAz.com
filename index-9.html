@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GemAZ — Oyun Top-Up</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#0b1020;color:#fff}
+header{padding:16px 20px;background:#111936;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+.logo{font-size:25px;font-weight:800;color:#62e6a5}.cart{background:#1d294d;border:0;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+main{max-width:1100px;margin:auto;padding:25px 16px}.hero{padding:30px 20px;border-radius:18px;background:linear-gradient(135deg,#17234a,#102d35);margin-bottom:22px}
+.hero h1{margin:0 0 8px;font-size:34px}.hero p{color:#b8c2df}.games{display:flex;gap:9px;overflow:auto;margin-bottom:20px}.game{white-space:nowrap;border:1px solid #2d3960;background:#151d3b;color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer}.game.active{background:#35b87d;border-color:#35b87d}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}.card{background:#131b35;border:1px solid #263154;border-radius:15px;padding:16px}.card h3{margin:0 0 8px}.price{font-size:21px;font-weight:700;color:#62e6a5;margin:12px 0}.card button,.pay{width:100%;padding:12px;border:0;border-radius:10px;background:#35b87d;color:#06130d;font-weight:700;cursor:pointer}
+#checkout{display:none;margin-top:25px;background:#131b35;border:1px solid #263154;border-radius:15px;padding:18px}.row{display:grid;gap:10px;margin:10px 0}input{width:100%;padding:12px;border-radius:9px;border:1px solid #344164;background:#0d1429;color:#fff}.summary{padding:12px;background:#0d1429;border-radius:10px;margin:12px 0}.small{color:#9da9c9;font-size:13px}
+footer{text-align:center;color:#7580a0;padding:35px}
+</style>
+</head>
+<body>
+<header><div class="logo">GemAZ</div><button class="cart" onclick="showCheckout()">🛒 Səbət (<span id="count">0</span>)</button></header>
+<main>
+<section class="hero"><h1>Oyunlarını saniyələrə doldur</h1><p>Free Fire, PUBG Mobile, Roblox və digər oyunlar üçün top-up.</p></section>
+<div class="games" id="games"></div>
+<h2 id="title">Free Fire</h2>
+<div class="grid" id="products"></div>
+
+<section id="checkout">
+<h2>Sifariş</h2>
+<div id="cartList"></div>
+<div class="summary">Ümumi: <b id="total">0.00 ₼</b></div>
+<div class="row">
+<label>Telefon nömrəsi</label>
+<input id="phone" placeholder="+994..." type="tel">
+</div>
+<div id="ids"></div>
+<button class="pay" onclick="pay()">Epoint ilə ödənişə keç</button>
+<p class="small">Ödəniş düyməsi serverdə /api/create-payment ünvanına müraciət edir.</p>
+</section>
+</main>
+<footer>© 2026 GemAZ</footer>
+
+<script>
+const data={
+"Free Fire":[["5 Diamonds",0.19],["25 Diamonds",0.39],["50 Diamonds",0.69],["100 Diamonds",1.59],["310 Diamonds",5.49],["520 Diamonds",7.99],["1060 Diamonds",15.99],["WEEKLY LITE",0.59],["Weekly Membership",2.59],["Monthly Membership",9.99]],
+"PUBG Mobile":[["60 UC",1.89],["325 UC",8.99],["660 UC",17.99],["1800 UC",44.99],["3850 UC",89.99],["8100 UC",174.99],["Elite Pass LV1–50",9.99]],
+"Roblox":[["100 Robux",4.99],["200 Robux",6.49],["400 Robux",10.49],["800 Robux",17.99],["1700 Robux",36.99]],
+"Brawl Stars":[["30 Gems",2.49],["80 Gems",5.29],["170 Gems",10.49],["360 Gems",19.99],["950 Gems",42.99],["Brawl Pass",9.49]],
+"Mobile Legends":[["86 Diamonds",1.99],["172 Diamonds",3.79],["257 Diamonds",5.49],["Weekly Diamond Pass",2.99]],
+"Valorant":[["475 VP",7.99],["1000 VP",15.99],["2050 VP",29.99]],
+"Fortnite":[["800 V-Bucks",14.99],["2800 V-Bucks",34.99]],
+"Steam":[["5 USD",9.49],["10 USD",18.49],["20 USD",36.99]]
+};
+let game="Free Fire",cart=[];
+const games=document.getElementById("games");
+Object.keys(data).forEach((g,i)=>{let b=document.createElement("button");b.className="game"+(i===0?" active":"");b.textContent=g;b.onclick=()=>{game=g;document.querySelectorAll(".game").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()};games.appendChild(b)});
+function render(){
+document.getElementById("title").textContent=game;
+document.getElementById("products").innerHTML=data[game].map((p,i)=>`<div class="card"><h3>${p[0]}</h3><div class="price">${p[1].toFixed(2)} ₼</div><button onclick="add(${i})">Səbətə əlavə et</button></div>`).join("");
+}
+function add(i){cart.push({game,name:data[game][i][0],price:data[game][i][1]});update();alert("Məhsul səbətə əlavə edildi.");}
+function update(){document.getElementById("count").textContent=cart.length}
+function showCheckout(){
+if(!cart.length){alert("Əvvəl məhsul seç.");return}
+document.getElementById("checkout").style.display="block";
+document.getElementById("cartList").innerHTML=cart.map((x,i)=>`<div style="padding:7px 0">${i+1}. ${x.game} — ${x.name} — ${x.price.toFixed(2)} ₼</div>`).join("");
+document.getElementById("total").textContent=cart.reduce((s,x)=>s+x.price,0).toFixed(2)+" ₼";
+document.getElementById("ids").innerHTML=cart.map((x,i)=>`<div class="row"><label>${x.game} — ${x.name} üçün Player ID / UID</label><input id="uid${i}" placeholder="Player ID / UID"></div>`).join("");
+document.getElementById("checkout").scrollIntoView({behavior:"smooth"});
+}
+async function pay(){
+const phone=document.getElementById("phone").value.trim();
+if(!phone){alert("Telefon nömrəsini yaz.");return}
+for(let i=0;i<cart.length;i++){if(!document.getElementById("uid"+i).value.trim()){alert("Bütün Player ID/UID-ləri yaz.");return}}
+const amount=cart.reduce((s,x)=>s+x.price,0);
+const orderId="GEMAZ-"+Date.now();
+try{
+const r=await fetch("/api/create-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,orderId,phone})});
+const j=await r.json();
+if(j.redirect_url) location.href=j.redirect_url;
+else alert(j.error||"Ödəniş yaratmaq mümkün olmadı.");
+}catch(e){alert("Serverə qoşulmaq mümkün olmadı. Saytı Render ünvanından açdığından əmin ol.")}
+}
+render();
+</script>
+</body>
+</html>
