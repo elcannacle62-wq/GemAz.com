@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GemAZ — Oyun Top-Up</title>
+<meta name="theme-color" content="#0b0e14">
+<style>
+:root{
+  --bg:#090b10;--panel:#11151e;--panel2:#151a24;--line:#252c3a;
+  --text:#f7f8fb;--muted:#949cad;--accent:#735cf6;--good:#55d98a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+button,input{font:inherit}
+a{text-decoration:none;color:inherit}
+.container{width:min(1120px,100% - 28px);margin:auto}
+
+/* Header */
+header{position:sticky;top:0;z-index:20;background:rgba(9,11,16,.92);backdrop-filter:blur(12px);border-bottom:1px solid #171c26}
+.head{height:66px;display:flex;align-items:center;gap:16px}
+.brand{font-weight:900;font-size:25px;letter-spacing:-.8px}
+.brand span{color:var(--accent)}
+.nav{display:flex;gap:5px;margin-left:auto;overflow:auto;white-space:nowrap}
+.nav a{padding:9px 11px;border-radius:10px;color:#b8becb;font-size:14px}
+.nav a.active,.nav a:hover{background:#1b2030;color:#fff}
+.head-actions{display:flex;gap:8px}
+.icon-btn{border:1px solid var(--line);background:#141923;color:#fff;border-radius:11px;padding:10px 12px}
+
+/* Hero */
+.hero{padding:28px 0 22px;background:radial-gradient(circle at 80% 20%,#2a205c 0,#171729 28%,transparent 55%),linear-gradient(145deg,#121723,#0a0d13)}
+.hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;background:#171c29;border:1px solid #272d3c;border-radius:999px;padding:7px 10px;color:#c7cce0;font-size:12px}
+.hero h1{font-size:42px;line-height:1.03;letter-spacing:-1.5px;margin:14px 0 10px}
+.hero p{margin:0;color:#aeb4c2;max-width:620px;line-height:1.6}
+.search{margin-top:18px;display:flex;gap:9px}
+.search input{flex:1;min-width:0;background:#0e1219;border:1px solid #2a3040;color:#fff;border-radius:13px;padding:14px}
+.search button{border:0;background:var(--accent);color:#fff;border-radius:13px;padding:0 17px;font-weight:800}
+.source-box{background:linear-gradient(160deg,#171c2b,#10131a);border:1px solid #2a3040;border-radius:18px;padding:18px}
+.source-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.source-title{font-weight:800}.source-pill{color:#8bf1b1;background:#10251a;border:1px solid #1e4a2d;padding:6px 8px;border-radius:999px;font-size:11px}
+.source-box p{color:#959eaf;font-size:13px;line-height:1.55;margin:12px 0 0}
+.mini-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:13px}
+.mini{padding:10px;background:#10141c;border:1px solid #232938;border-radius:12px}
+.mini b{display:block;font-size:16px}.mini span{display:block;color:#81899a;font-size:11px;margin-top:3px}
+
+/* Sections */
+.section{padding:25px 0}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:13px}
+.section-head h2{margin:0;font-size:21px}
+.section-head p{margin:0;color:#7f8797;font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* Game cards */
+.game{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:9px;transition:.15s;cursor:pointer}
+.game:hover{transform:translateY(-2px);border-color:#394158}
+.game-media{height:120px;border-radius:13px;background:#171c27;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.game-media img{width:100%;height:100%;object-fit:contain;padding:9px;display:block}
+.logo-fallback{font-weight:1000;font-size:20px;letter-spacing:-.8px;padding:12px;text-align:center}
+.game-name{font-weight:800;margin:11px 4px 2px}
+.game-type{color:#7f8797;font-size:12px;margin:0 4px 5px}
+.badge-row{display:flex;justify-content:space-between;align-items:center;margin:7px 4px 2px}
+.badge{font-size:10px;color:#8e96a8}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:var(--good);margin-right:5px}
+
+/* Product panel */
+#products{display:none}
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.product{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.product-left{display:flex;gap:11px;align-items:center;min-width:0}
+.product-logo{width:58px;height:58px;border-radius:15px;flex:0 0 58px;background:#151a25;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.product-logo img{width:100%;height:100%;object-fit:contain;padding:4px}
+.product-title{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.product-sub{font-size:12px;color:#858d9d;margin-top:4px}
+.stock{display:inline-flex;align-items:center;margin-top:6px;font-size:10px;color:#74e59b}
+.right{display:flex;flex-direction:column;align-items:end;gap:7px}
+.price{font-weight:900;color:#a89dff}
+.buy{border:0;background:var(--accent);color:#fff;border-radius:10px;padding:9px 13px;font-weight:800}
+.note{margin-top:10px;padding:11px 12px;border-radius:12px;background:#11161f;border:1px dashed #2a3040;color:#7f8798;font-size:12px;line-height:1.5}
+
+/* Categories */
+.categories{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cat{background:#10141c;border:1px solid #232a38;border-radius:13px;padding:13px}
+.cat b{display:block;font-size:13px}.cat span{font-size:11px;color:#81899a;margin-top:4px;display:block}
+
+/* Footer */
+footer{border-top:1px solid #1a1f29;margin-top:20px;padding:28px 0 40px;color:#737b8d}
+.footer-grid{display:grid;grid-template-columns:1fr auto;gap:20px}
+.footer-brand{font-weight:900;color:#fff;font-size:18px}
+.footer-links{display:flex;gap:15px;flex-wrap:wrap;font-size:12px}
+.footer-note{font-size:11px;margin-top:8px;line-height:1.5;max-width:650px}
+
+/* Mobile */
+@media(max-width:820px){
+  .hero-grid{grid-template-columns:1fr}
+  .source-box{display:none}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .categories{grid-template-columns:repeat(2,1fr)}
+  .products{grid-template-columns:1fr}
+  .hero h1{font-size:34px}
+}
+@media(max-width:520px){
+  .container{width:min(100% - 20px,1120px)}
+  .head{height:60px}
+  .nav{display:none}
+  .hero{padding-top:22px}
+  .grid{gap:9px}
+  .game{padding:7px}
+  .game-media{height:100px}
+  .products{gap:9px}
+  .product{padding:10px}
+  .product-logo{width:52px;height:52px;flex-basis:52px}
+  .footer-grid{grid-template-columns:1fr}
+}
+</style>
+
+<style>
+.cart-btn{margin-left:auto;background:#171b24;border:1px solid #2b3240;color:#fff;padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer;display:flex;gap:7px;align-items:center}
+.cart-btn span{background:#ffb000;color:#111;border-radius:999px;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.add-cart{width:100%;border:0;background:#ffb000;color:#111;padding:12px;border-radius:11px;font-weight:900;cursor:pointer;margin-top:9px}
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:999;display:none}
+.cart-panel{position:absolute;right:0;top:0;height:100%;width:min(430px,100%);background:#0f1218;color:#fff;padding:18px;overflow:auto;box-shadow:-10px 0 40px rgba(0,0,0,.4)}
+.cart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.cart-close{background:#252b36;border:0;color:#fff;border-radius:10px;padding:9px 12px;font-size:18px}
+.cart-item{display:flex;gap:11px;align-items:center;background:#181d26;border:1px solid #29303c;padding:11px;border-radius:14px;margin-bottom:10px}
+.cart-item img{width:50px;height:50px;object-fit:contain;border-radius:10px;background:#fff}
+.cart-item-info{flex:1}.cart-item-name{font-weight:800;font-size:14px}.cart-item-price{color:#ffbd2e;font-weight:900;margin-top:4px}
+.qty{display:flex;align-items:center;gap:7px;margin-top:7px}.qty button{width:27px;height:27px;border:0;border-radius:7px;background:#2b3240;color:#fff;font-weight:900}
+.cart-total{border-top:1px solid #2b3240;margin-top:15px;padding-top:15px;display:flex;justify-content:space-between;font-size:19px;font-weight:900}
+.checkout{width:100%;margin-top:14px;background:#ffb000;border:0;padding:14px;border-radius:12px;font-weight:900;font-size:16px}
+.empty-cart{text-align:center;color:#aab1bd;padding:50px 10px}
+</style>
+
+<style id="checkout-css">
+.checkout-view{display:none}
+.checkout-back{background:transparent;border:0;color:#b9c0cc;font-weight:800;padding:6px 0;cursor:pointer;margin-bottom:8px}
+.checkout-title{margin:0 0 5px;font-size:24px}
+.checkout-sub{color:#aeb6c4;font-size:13px;margin:0 0 16px;line-height:1.45}
+.order-form{display:grid;gap:12px}
+.order-item{background:#181d26;border:1px solid #2b3240;border-radius:14px;padding:12px}
+.order-item-head{display:flex;gap:10px;align-items:center}
+.order-item-head img{width:46px;height:46px;object-fit:contain;background:#fff;border-radius:10px}
+.order-item-title{font-weight:900;font-size:14px}
+.order-item-game{font-size:12px;color:#9da6b5;margin-top:3px}
+.field{display:grid;gap:6px;margin-top:10px}
+.field label{font-size:12px;color:#c3cad5;font-weight:800}
+.field input{width:100%;box-sizing:border-box;background:#0f131a;border:1px solid #343d4b;color:#fff;border-radius:10px;padding:12px;font-size:14px;outline:none}
+.field input:focus{border-color:#ffb000}
+.form-error{display:none;background:#3a2020;border:1px solid #6f3333;color:#ffb1b1;padding:10px;border-radius:10px;font-size:13px}
+.checkout-summary{background:#181d26;border:1px solid #2b3240;border-radius:14px;padding:13px;margin-top:2px}
+.summary-line{display:flex;justify-content:space-between;gap:10px;margin:6px 0;font-size:13px}
+.summary-total{font-weight:900;font-size:18px;border-top:1px solid #303846;padding-top:10px;margin-top:10px}
+.confirm-order{width:100%;border:0;background:#ffb000;color:#111;padding:14px;border-radius:12px;font-weight:900;font-size:16px;cursor:pointer;margin-top:2px}
+.small-note{font-size:11px;color:#8f98a7;line-height:1.4;text-align:center;margin:0}
+.success-box{display:none;background:#17351f;border:1px solid #2f6940;color:#c1ffd0;border-radius:14px;padding:16px;text-align:center;line-height:1.5}
+@media(max-width:520px){.cart-btn{padding:9px 11px}.cart-panel{padding:14px}.checkout-title{font-size:21px}}
+</style>
+
+
+<style id="gemaz-payment-css">
+.payment-methods{display:grid;gap:10px;margin-top:14px}
+.payment-option{display:flex;align-items:center;gap:10px;background:#171d26;border:1px solid #323b49;border-radius:12px;padding:13px;cursor:pointer}
+.payment-option input{accent-color:#ffb000}.payment-option strong{font-size:14px}.payment-option span{font-size:12px;color:#9ca6b5}
+.payment-status{display:none;margin-top:12px;padding:12px;border-radius:11px;font-size:13px;line-height:1.45}
+.payment-status.info{display:block;background:#192c43;border:1px solid #31567d;color:#c6e2ff}
+.payment-status.error{display:block;background:#3a2022;border:1px solid #71383c;color:#ffb7b7}
+.payment-status.ok{display:block;background:#18351f;border:1px solid #347044;color:#c6ffd1}
+.gemaz-pay-btn{width:100%;margin-top:12px}
+.payment-summary{background:#0d1117;border:1px solid #29313d;border-radius:12px;padding:12px;margin-top:12px}
+.payment-summary-row{display:flex;justify-content:space-between;gap:15px;padding:5px 0;font-size:13px}
+.payment-total{font-size:18px;font-weight:950;padding-top:9px;border-top:1px solid #29313d;margin-top:7px}
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="container head">
+    <div class="brand">Gem<span>AZ</span></div>
+    <nav class="nav">
+      <a class="active" href="#games">🎮 Oyunlar</a>
+      <a href="#categories">🧩 Kateqoriyalar</a>
+      <a href="#products">🔥 Kampaniyalar</a>
+      <a href="#support">💬 Dəstək</a>
+    </nav>
+    <div class="head-actions">
+      <button class="icon-btn" onclick="openCart()">🛒</button>
+    </div>
+  </div>
+
+<div id="cartButton" class="cart-btn" onclick="openCart()">
+  🛒 Səbət <span id="cartCount">0</span>
+</div>
+</header>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">⚡ Sürətli Top-Up • 🇦🇿 AZN</span>
+      <h1>Oyununa lazım olanı seç.</h1>
+      <p>Game valyutası, paketlər və rəqəmsal məhsullar — GemAZ-da bir yerdə. Müştəri qeydiyyatsız da sifariş verə biləcək.</p>
+      <div class="search">
+        <input id="searchBox" placeholder="🔎 Oyun axtar..." oninput="filterGames(this.value)">
+        <button onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})">Axtar</button>
+      </div>
+    </div>
+    <div class="source-box">
+      <div class="source-top">
+        <div class="source-title">📦 Məhsul mənbəyi</div>
+        <div class="source-pill">FazerCards</div>
+      </div>
+      <p>Məhsul kataloqu mənbəyə uyğun qurulur. API qoşulduqda məhsul, alış qiyməti və stok avtomatik yenilənəcək; GemAZ marjası ayrıca tətbiq oluna bilər.</p>
+      <div class="mini-stats">
+        <div class="mini"><b>4+</b><span>başlanğıc oyun</span></div>
+        <div class="mini"><b>API</b><span>stok sistemi</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main>
+<section class="section" id="games">
+  <div class="container">
+    <div class="section-head">
+      <div><h2>🔥 Populyar oyunlar</h2></div>
+      <p>Hamısını gör →</p>
+    </div>
+    <div class="grid" id="gameGrid">
+
+      <div class="game" data-name="free fire" onclick="showProducts('Free Fire')">
+        <div class="game-media">
+          <img src="https://upload.wikimedia.org/wikipedia/en/2/2f/Free_Fire_Logo.svg" alt="Free Fire logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <div class="logo-fallback" style="display:none">FREE FIRE</div>
+        </div>
+        <div class="game-name">Free Fire</div><div class="game-type">Almaz • Membership</div>
+        <div class="badge-row"><span class="badge"><span class="dot"></span>Məhsullar</span><span class="badge">→</span></div>
+      </div>
+
+      <div class="game" data-name="pubg mobile" onclick="showProducts('PUBG Mobile')">
+        <div class="game-media">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png" alt="PUBG Mobile logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <div class="logo-fallback" style="display:none">PUBG<br>MOBILE</div>
+        </div>
+        <div class="game-name">PUBG Mobile</div><div class="game-type">UC • PIN</div>
+        <div class="badge-row"><span class="badge"><span class="dot"></span>Məhsullar</span><span class="badge">→</span></div>
+      </div>
+
+      <div class="game" data-name="roblox" onclick="showProducts('Roblox')">
+        <div class="game-media">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Roblox_Logo_2025.png" alt="Roblox logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <div class="logo-fallback" style="display:none">ROBLOX</div>
+        </div>
+        <div class="game-name">Roblox</div><div class="game-type">Robux • Gift Card</div>
+        <div class="badge-row"><span class="badge"><span class="dot"></span>Məhsullar</span><span class="badge">→</span></div>
+      </div>
+
+      <div class="game" data-name="brawl stars" onclick="showProducts('Brawl Stars')">
+        <div class="game-media">
+          <img src="https://mmonster.co/media/b6/5f/b7/1739962551/brawl-stars-gems.webp" alt="Brawl Stars" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <div class="logo-fallback" style="display:none">BRAWL<br>STARS</div>
+        </div>
+        <div class="game-name">Brawl Stars</div><div class="game-type">Gems • Pass</div>
+        <div class="badge-row"><span class="badge"><span class="dot"></span>Məhsullar</span><span class="badge">→</span></div>
+      </div>
+
+      <div class="game" data-name="mobile legends" onclick="soon('Mobile Legends Bang Bang')">
+        <div class="game-media">
+          <div class="logo-fallback">MOBILE<br>LEGENDS</div>
+        </div>
+        <div class="game-name">Mobile Legends</div><div class="game-type">Diamonds</div>
+        <div class="badge-row"><span class="badge">FazerCards/API</span><span class="badge">→</span></div>
+      </div>
+
+      <div class="game" data-name="valorant" onclick="soon('Valorant')">
+        <div class="game-media">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Valorant_logo.svg" alt="Valorant logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <div class="logo-fallback" style="display:none">VALORANT</div>
+        </div>
+        <div class="game-name">Valorant</div><div class="game-type">VP</div>
+        <div class="badge-row"><span class="badge">FazerCards/API</span><span class="badge">→</span></div>
+      </div>
+
+      <div class="game" data-name="fortnite" onclick="soon('Fortnite')">
+        <div class="game-media">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/FortniteLogo.svg" alt="Fortnite logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <div class="logo-fallback" style="display:none">FORTNITE</div>
+        </div>
+        <div class="game-name">Fortnite</div><div class="game-type">V-Bucks</div>
+        <div class="badge-row"><span class="badge">FazerCards/API</span><span class="badge">→</span></div>
+      </div>
+
+      <div class="game" data-name="steam" onclick="soon('Steam')">
+        <div class="game-media">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Steam_icon_logo.svg" alt="Steam logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <div class="logo-fallback" style="display:none">STEAM</div>
+        </div>
+        <div class="game-name">Steam</div><div class="game-type">Wallet • Game Key</div>
+        <div class="badge-row"><span class="badge">Rəqəmsal kod</span><span class="badge">→</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="categories">
+<div class="container">
+  <div class="section-head"><h2>🧩 Kateqoriyalar</h2><p>GemAZ üçün sadə quruluş</p></div>
+  <div class="categories">
+    <div class="cat"><b>🎮 Oyun Top-Up</b><span>Player ID ilə yükləmə</span></div>
+    <div class="cat"><b>💎 Oyun valyutası</b><span>Gems • Diamonds • UC • Robux</span></div>
+    <div class="cat"><b>🎁 Gift Card / E-pin</b><span>Kodlar və rəqəmsal məhsullar</span></div>
+    <div class="cat"><b>🔥 Kampaniyalar</b><span>Endirimlər və bonuslar</span></div>
+  </div>
+</div>
+</section>
+
+<section class="section" id="products">
+<div class="container">
+  <div class="section-head">
+    <h2 id="productTitle">Məhsullar</h2>
+    <p><span class="dot"></span> Stok API ilə yoxlanacaq</p>
+  </div>
+  <div class="products" id="productList"></div>
+  <div class="note">ℹ️ Hazırda qiymətlər demo olaraq boş saxlanılıb. FazerCards API qoşulanda məhsullar, qiymətlər və real stok avtomatik gələcək.</div>
+</div>
+</section>
+</main>
+
+<footer id="support">
+<div class="container footer-grid">
+  <div>
+    <div class="footer-brand">Gem<span style="color:var(--accent)">AZ</span></div>
+    <div class="footer-note">Oyunlar üçün sürətli Top-Up mağazası. Məhsul mənbəyi FazerCards olduqda kataloq və stok API ilə sinxronlaşdırılacaq.</div>
+  </div>
+  <div class="footer-links">
+    <a href="#games">Oyunlar</a><a href="#categories">Kateqoriyalar</a><a href="#support">Dəstək</a>
+  </div>
+</div>
+</footer>
+
+<script>
+const catalog={
+  "Free Fire":[
+    ["https://upload.wikimedia.org/wikipedia/en/2/2f/Free_Fire_Logo.svg","5 💎 Elmas","Player ID ilə yükləmə","0.19 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/en/2/2f/Free_Fire_Logo.svg","25 💎 Elmas","Player ID ilə yükləmə","0.39 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/en/2/2f/Free_Fire_Logo.svg","50 💎 Elmas","Player ID ilə yükləmə","0.69 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/en/2/2f/Free_Fire_Logo.svg","100 💎 Elmas","Player ID ilə yükləmə","1.59 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/en/2/2f/Free_Fire_Logo.svg","310 💎 Elmas","Player ID ilə yükləmə","5.49 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/en/2/2f/Free_Fire_Logo.svg","520 💎 Elmas","Player ID ilə yükləmə","7.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/en/2/2f/Free_Fire_Logo.svg","1060 💎 Elmas","Player ID ilə yükləmə","15.99 ₼"],
+    ["https://raxgame.com/assets/kategori/0fe57840-4a04-4c8f-a84b-30875e2f66a0.webp","WEEKLY LITE","Həftəlik paket • Player ID","0.59 ₼"],
+    ["https://raxgame.com/assets/kategori/0fe57840-4a04-4c8f-a84b-30875e2f66a0.webp","Weekly Membership","Həftəlik üzvlük • Player ID","2.59 ₼"],
+    ["https://raxgame.com/assets/kategori/0fe57840-4a04-4c8f-a84b-30875e2f66a0.webp","Weekly Card","Həftəlik kart • Player ID","3.99 ₼"],
+    ["https://raxgame.com/assets/kategori/0fe57840-4a04-4c8f-a84b-30875e2f66a0.webp","Weekly Pack","Həftəlik paket • Player ID","4.29 ₼"],
+    ["https://raxgame.com/assets/kategori/0fe57840-4a04-4c8f-a84b-30875e2f66a0.webp","Weekly Mini Pack","Mini həftəlik paket • Player ID","1.99 ₼"],
+    ["https://raxgame.com/assets/kategori/0fe57840-4a04-4c8f-a84b-30875e2f66a0.webp","Evo Access 7D","7 günlük giriş • Player ID","1.59 ₼"],
+    ["https://raxgame.com/assets/kategori/0fe57840-4a04-4c8f-a84b-30875e2f66a0.webp","Evo Access 30D","30 günlük giriş • Player ID","4.49 ₼"],
+    ["https://raxgame.com/assets/kategori/0fe57840-4a04-4c8f-a84b-30875e2f66a0.webp","Monthly Membership","Aylıq üzvlük • Player ID","9.99 ₼"]
+  ],
+  "PUBG Mobile":[
+    ["https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png","60 UC","Player ID","1.89 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png","325 UC","Player ID","8.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png","660 UC","Player ID","17.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png","1800 UC","Player ID","44.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png","3850 UC","Player ID","89.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png","8100 UC","Player ID","174.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png","First Purchase Pack","Player ID","1.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png","Weekly Deal Pack 1","Player ID","1.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/4/43/PUBG_Mobile_simple_logo_black.png","Weekly Deal Pack 2","Player ID","5.49 ₼"],
+    ["https://www.pubgmobile.com/images/event/royalepass13/s3_role_icon.png","Elite Pass LV1–50","Player ID","9.99 ₼"]
+  ],
+  "Roblox":[
+    ["https://upload.wikimedia.org/wikipedia/commons/1/1e/Roblox_Logo_2025.png","100 Robux","Regionə görə • avtomatik","4.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/1/1e/Roblox_Logo_2025.png","200 Robux","Regionə görə • avtomatik","6.49 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/1/1e/Roblox_Logo_2025.png","400 Robux","Regionə görə • avtomatik","10.49 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/1/1e/Roblox_Logo_2025.png","800 Robux","Regionə görə • avtomatik","17.99 ₼"],
+    ["https://upload.wikimedia.org/wikipedia/commons/1/1e/Roblox_Logo_2025.png","1700 Robux","Regionə görə • avtomatik","36.99 ₼"]
+  ],
+  "Brawl Stars":[
+    ["https://mmonster.co/media/b6/5f/b7/1739962551/brawl-stars-gems.webp","30 Gems","#PlayerTag tələb olunur","2.49 ₼"],
+    ["https://mmonster.co/media/b6/5f/b7/1739962551/brawl-stars-gems.webp","80 Gems","#PlayerTag tələb olunur","5.29 ₼"],
+    ["https://mmonster.co/media/b6/5f/b7/1739962551/brawl-stars-gems.webp","170 Gems","#PlayerTag tələb olunur","10.49 ₼"],
+    ["https://mmonster.co/media/b6/5f/b7/1739962551/brawl-stars-gems.webp","360 Gems","#PlayerTag tələb olunur","19.99 ₼"],
+    ["https://mmonster.co/media/b6/5f/b7/1739962551/brawl-stars-gems.webp","950 Gems","#PlayerTag tələb olunur","42.99 ₼"],
+    ["https://mmonster.co/media/f2/79/e5/1712610299/brawl-stars-battle-pass.webp","Brawl Pass","#PlayerTag tələb olunur","9.49 ₼"]
+  ]
+};
+
+function showProducts(game){
+  const section=document.getElementById('products');
+  section.style.display='block';
+  document.getElementById('productTitle').textContent=game+" — Məhsullar";
+  const list=document.getElementById('productList');
+  list.innerHTML=(catalog[game]||[]).map(p=>`
+    <div class="product">
+      <div class="product-left">
+        <div class="product-logo"><img src="${p[0]}" alt="${p[1]}" onerror="this.style.display='none'"></div>
+        <div style="min-width:0">
+          <div class="product-title">${p[1]}</div>
+          <div class="product-sub">${p[2]}</div>
+          <div class="stock">● FazerCards stok API</div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="price">${p[3]}</div>
+        <button class="add-cart" onclick='addToCart(${JSON.stringify(game)}, ${JSON.stringify(p[1])}, ${JSON.stringify(p[3])}, ${JSON.stringify(p[0])})'>🛒 Səbətə əlavə et</button>
+      </div>
+    </div>
+  `).join('');
+  section.scrollIntoView({behavior:'smooth'});
+}
+function soon(game){alert(game+" üçün bölmə hazırlanıb. Məhsullar FazerCards kataloqu qoşulanda avtomatik gələcək.")}
+function filterGames(q){
+  q=q.trim().toLowerCase();
+  document.querySelectorAll('.game').forEach(card=>{
+    card.style.display=card.dataset.name.includes(q)?'block':'none';
+  });
+}
+</script>
+
+<script>
+let cart = JSON.parse(localStorage.getItem("gemaz_cart") || "[]");
+let checkoutMode = false;
+
+function saveCart(){
+  localStorage.setItem("gemaz_cart", JSON.stringify(cart));
+  updateCartCount();
+}
+
+function updateCartCount(){
+  const n = cart.reduce((s,x)=>s + Number(x.qty || 0), 0);
+  const el = document.getElementById("cartCount");
+  if(el) el.textContent = n;
+}
+
+function addToCart(game, name, price, image){
+  const numericPrice = parseFloat(String(price).replace(/[^\d.,]/g,'').replace(',','.')) || 0;
+  const key = game + "::" + name;
+  const found = cart.find(x => x.key === key);
+  if(found) found.qty = Number(found.qty || 0) + 1;
+  else cart.push({key, game, name, price:numericPrice, image, qty:1});
+  saveCart();
+  openCart();
+}
+
+function changeQty(i,d){
+  if(!cart[i]) return;
+  cart[i].qty = Number(cart[i].qty || 0) + d;
+  if(cart[i].qty <= 0) cart.splice(i,1);
+  saveCart();
+  if(checkoutMode) renderCheckout();
+  else renderCart();
+}
+
+function removeCart(i){
+  cart.splice(i,1);
+  saveCart();
+  if(checkoutMode){
+    if(!cart.length) backToCart();
+    else renderCheckout();
+  } else renderCart();
+}
+
+function openCart(){
+  const o = document.getElementById("cartOverlay");
+  if(!o) return;
+  o.style.display = "block";
+  checkoutMode = false;
+  const cv = document.getElementById("cartView");
+  const ov = document.getElementById("checkoutView");
+  if(cv) cv.style.display = "block";
+  if(ov) ov.style.display = "none";
+  renderCart();
+}
+
+function closeCart(){
+  const o = document.getElementById("cartOverlay");
+  if(o) o.style.display = "none";
+  checkoutMode = false;
+}
+
+function renderCart(){
+  const box = document.getElementById("cartItems");
+  const totalEl = document.getElementById("cartTotal");
+  if(!box) return;
+
+  if(!cart.length){
+    box.innerHTML = '<div class="empty-cart">🛒<br><br>Səbət boşdur.</div>';
+    if(totalEl) totalEl.textContent = '0.00 ₼';
+    return;
+  }
+
+  let total = 0;
+  box.innerHTML = cart.map((x,i) => {
+    const price = Number(x.price || 0);
+    const qty = Number(x.qty || 0);
+    total += price * qty;
+    return `<div class="cart-item">
+      <img src="${x.image||''}" onerror="this.style.visibility='hidden'">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${escapeHtml(x.game)} — ${escapeHtml(x.name)}</div>
+        <div class="cart-item-price">${price.toFixed(2)} ₼ × ${qty}</div>
+        <div class="qty">
+          <button onclick="changeQty(${i},-1)">−</button>
+          <b>${qty}</b>
+          <button onclick="changeQty(${i},1)">+</button>
+          <button onclick="removeCart(${i})" style="margin-left:4px">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if(totalEl) totalEl.textContent = total.toFixed(2) + ' ₼';
+}
+
+function getIdLabel(game){
+  if(game === "Brawl Stars") return "Player Tag";
+  if(game === "Roblox") return "Roblox User ID";
+  return "Player ID / UID";
+}
+
+function getIdPlaceholder(game){
+  if(game === "Brawl Stars") return "#ABC12345";
+  if(game === "Roblox") return "Məsələn: 123456789";
+  if(game === "PUBG Mobile") return "Məsələn: 51234567890";
+  return "Məsələn: 1234567890";
+}
+
+function openCheckout(){
+  if(!cart.length){
+    alert("Səbət boşdur.");
+    return;
+  }
+  checkoutMode = true;
+  const cv = document.getElementById("cartView");
+  const ov = document.getElementById("checkoutView");
+  if(cv) cv.style.display = "none";
+  if(ov) ov.style.display = "block";
+  renderCheckout();
+}
+
+function backToCart(){
+  checkoutMode = false;
+  const cv = document.getElementById("cartView");
+  const ov = document.getElementById("checkoutView");
+  if(cv) cv.style.display = "block";
+  if(ov) ov.style.display = "none";
+  renderCart();
+}
+
+function renderCheckout(){
+  const form = document.getElementById("orderForm");
+  const summary = document.getElementById("checkoutSummary");
+  const err = document.getElementById("formError");
+  const success = document.getElementById("successBox");
+  if(!form) return;
+
+  if(err){err.style.display='none';err.textContent='';}
+  if(success){success.style.display='none';success.textContent='';}
+
+  form.innerHTML = cart.map((x,i) => `
+    <div class="order-item">
+      <div class="order-item-head">
+        <img src="${x.image||''}" onerror="this.style.visibility='hidden'">
+        <div>
+          <div class="order-item-title">${escapeHtml(x.name)} × ${Number(x.qty||0)}</div>
+          <div class="order-item-game">${escapeHtml(x.game)}</div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="account_${i}">👤 ${getIdLabel(x.game)}</label>
+        <input id="account_${i}" class="account-input" data-index="${i}" type="text"
+               inputmode="text" placeholder="${getIdPlaceholder(x.game)}" autocomplete="off">
+      </div>
+    </div>
+  `).join('');
+
+  const total = cart.reduce((s,x)=>s + Number(x.price||0)*Number(x.qty||0), 0);
+  summary.innerHTML = `
+    <div class="summary-line"><span>Məhsullar</span><b>${cart.reduce((s,x)=>s+Number(x.qty||0),0)} ədəd</b></div>
+    <div class="summary-line summary-total"><span>Ümumi</span><span>${total.toFixed(2)} ₼</span></div>
+  `;
+}
+
+function validateAndContinue(){
+  const err = document.getElementById("formError");
+  const phone = document.getElementById("customerPhone");
+  const success = document.getElementById("successBox");
+
+  const ids = [...document.querySelectorAll(".account-input")];
+  for(let i=0;i<ids.length;i++){
+    const v = ids[i].value.trim();
+    if(v.length < 3){
+      err.textContent = "Zəhmət olmasa bütün məhsullar üçün hesab məlumatını yaz.";
+      err.style.display = "block";
+      ids[i].focus();
+      return;
+    }
+  }
+
+  const phoneValue = (phone?.value || "").trim();
+  const digits = phoneValue.replace(/\D/g,'');
+  if(digits.length < 9){
+    err.textContent = "Düzgün telefon nömrəsi yaz.";
+    err.style.display = "block";
+    phone?.focus();
+    return;
+  }
+
+  const orderData = cart.map((x,i)=>({
+    game:x.game,
+    product:x.name,
+    qty:Number(x.qty||0),
+    unitPrice:Number(x.price||0),
+    accountId:ids[i].value.trim()
+  }));
+
+  const payload = {
+    createdAt:new Date().toISOString(),
+    phone:phoneValue,
+    items:orderData,
+    total:cart.reduce((s,x)=>s+Number(x.price||0)*Number(x.qty||0),0)
+  };
+
+  localStorage.setItem("gemaz_checkout", JSON.stringify(payload));
+
+  err.style.display = "none";
+  success.innerHTML = "✅ Məlumatlar qəbul edildi.<br><span style='font-size:12px'>Növbəti mərhələdə bu sifarişə ödəniş əlavə edəcəyik.</span>";
+  success.style.display = "block";
+}
+
+function escapeHtml(value){
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  updateCartCount();
+  const old = document.getElementById("cartOverlay");
+  if(!old){
+    document.body.insertAdjacentHTML('beforeend',`<div id="cartOverlay" class="cart-overlay" onclick="if(event.target.id==='cartOverlay')closeCart()">
+        <div class="cart-panel">
+          <div id="cartView">
+            <div class="cart-top"><h2>🛒 Səbət</h2><button class="cart-close" onclick="closeCart()">✕</button></div>
+            <div id="cartItems"></div>
+            <div class="cart-total"><span>Ümumi</span><span id="cartTotal">0.00 ₼</span></div>
+            <button class="checkout" onclick="openCheckout()">Sifarişi davam etdir →</button>
+          </div>
+
+          <div id="checkoutView" class="checkout-view">
+            <button class="checkout-back" onclick="backToCart()">← Səbətə qayıt</button>
+            <h2 class="checkout-title">Sifariş məlumatları</h2>
+            <p class="checkout-sub">Məhsulun hesabına yüklənməsi üçün tələb olunan məlumatları yaz.</p>
+            <div id="formError" class="form-error"></div>
+            <div id="orderForm" class="order-form"></div>
+            <div class="field">
+              <label for="customerPhone">📱 Telefon nömrəsi</label>
+              <input id="customerPhone" type="tel" inputmode="tel" placeholder="+994 XX XXX XX XX" autocomplete="tel">
+            </div>
+            <div id="checkoutSummary" class="checkout-summary"></div>
+            <button class="confirm-order" onclick="validateAndContinue()">Davam et →</button>
+
+<div id="gemazPaymentStep" style="display:none">
+  <div class="auth-head" style="margin-top:5px"><h3 style="margin:0">💳 Ödəniş</h3></div>
+  <div class="auth-help">Sifarişi təsdiqlə, sonra təhlükəsiz Epoint ödəniş səhifəsinə keç.</div>
+  <div id="gemazPaymentSummary" class="payment-summary"></div>
+  <div class="payment-methods">
+    <label class="payment-option">
+      <input type="radio" name="gemazPayMethod" value="epoint" checked>
+      <div><strong>💳 Bank kartı</strong><br><span>Epoint ilə təhlükəsiz ödəniş</span></div>
+    </label>
+  </div>
+  <div id="gemazPaymentStatus" class="payment-status"></div>
+  <button class="auth-submit gemaz-pay-btn" onclick="gemazCreatePayment()">Ödənişə keç</button>
+  <button class="auth-secondary" style="width:100%;margin-top:8px" onclick="gemazBackToCheckout()">← Sifariş məlumatlarına qayıt</button>
+</div>
+
+            <p class="small-note">Bu mərhələdə sifariş məlumatları yoxlanılır. Ödəniş növbəti mərhələdə qoşulacaq.</p>
+            <div id="successBox" class="success-box"></div>
+          </div>
+        </div>
+      </div>`);
+  }
+});
+</script>
+
+<script id="cart-compat">
+try{
+  cart = cart.map(x => ({
+    key: x.key || ("Naməlum::" + (x.name||"")),
+    game: x.game || "Oyun",
+    name: x.name || "Məhsul",
+    price: Number(x.price||0),
+    image: x.image || "",
+    qty: Number(x.qty||1)
+  }));
+  saveCart();
+}catch(e){}
+</script>
+
+<script id="gemaz-payment-js">
+(function(){
+  function pget(){
+    try{return JSON.parse(localStorage.getItem("gemaz_checkout")||"null")}catch(e){return null}
+  }
+  function pset(x){localStorage.setItem("gemaz_checkout",JSON.stringify(x))}
+  window.gemazOpenPayment=function(){
+    const data=pget();
+    if(!data){return gemazPaymentStatus("Sifariş məlumatı tapılmadı.","error");}
+    const step=document.getElementById("gemazPaymentStep");
+    if(step)step.style.display="block";
+    const sum=document.getElementById("gemazPaymentSummary");
+    if(sum){
+      const total=Number(data.total||data.amount||0).toFixed(2);
+      sum.innerHTML='<div class="payment-summary-row"><span>Sifariş</span><strong>'+String(data.order_id||"Yeni sifariş")+'</strong></div>'
+        +'<div class="payment-summary-row"><span>Məbləğ</span><strong>'+total+' ₼</strong></div>';
+    }
+    const forms=[document.getElementById("checkoutForm"),document.getElementById("checkoutFields"),document.getElementById("gemazCheckoutForm")];
+    forms.forEach(x=>{if(x)x.style.display="none"});
+  };
+  window.gemazBackToCheckout=function(){
+    const step=document.getElementById("gemazPaymentStep");if(step)step.style.display="none";
+    const forms=[document.getElementById("checkoutForm"),document.getElementById("checkoutFields"),document.getElementById("gemazCheckoutForm")];
+    forms.forEach(x=>{if(x)x.style.display=""});
+  };
+  window.gemazPaymentStatus=function(msg,type){
+    const e=document.getElementById("gemazPaymentStatus");if(!e)return;
+    e.textContent=msg;e.className="payment-status "+(type||"info");e.style.display="block";
+  };
+  window.gemazCreatePayment=async function(){
+    const data=pget();
+    if(!data)return gemazPaymentStatus("Sifariş məlumatı tapılmadı.","error");
+    const btn=document.querySelector(".gemaz-pay-btn");
+    if(btn){btn.disabled=true;btn.textContent="Ödəniş hazırlanır...";}
+    gemazPaymentStatus("Epoint ödənişi hazırlanır...","info");
+    try{
+      const res=await fetch("/api/create-payment",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          order_id:data.order_id,
+          amount:Number(data.total||data.amount||0).toFixed(2),
+          currency:"AZN",
+          description:"GemAZ sifarişi "+String(data.order_id||"")
+        })
+      });
+      const out=await res.json();
+      if(!res.ok || !out.success || !out.redirect_url) throw new Error(out.message||"Ödəniş linki yaradıla bilmədi.");
+      if(out.transaction){data.transaction=out.transaction;data.payment_status="pending";pset(data);}
+      window.location.href=out.redirect_url;
+    }catch(err){
+      gemazPaymentStatus(err.message||"Ödəniş zamanı xəta baş verdi.","error");
+      if(btn){btn.disabled=false;btn.textContent="Ödənişə keç";}
+    }
+  };
+
+  // After the existing checkout validation finishes, move to payment step.
+  const oldVC=window.validateAndContinue;
+  if(typeof oldVC==="function"){
+    window.validateAndContinue=function(){
+      const r=oldVC.apply(this,arguments);
+      setTimeout(function(){
+        const data=pget();
+        if(data)gemazOpenPayment();
+      },150);
+      return r;
+    };
+  }
+})();
+</script>
+
+
+<div id="gemazPaymentBox" class="gemaz-paybox" style="display:none">
+  <div style="font-size:18px;font-weight:950">💳 Ödəniş</div>
+  <div style="font-size:12px;color:#9da7b5;margin-top:5px">Sifariş hazırdır. Ödəniş etmək üçün aşağıdakı düyməyə toxun.</div>
+  <div id="gemazPaySummary" style="margin-top:11px"></div>
+  <div class="gemaz-pay-method">
+    <input type="radio" checked aria-label="Epoint">
+    <div><b>Bank kartı</b><div style="font-size:12px;color:#9da7b5">Epoint təhlükəsiz ödəniş səhifəsi</div></div>
+  </div>
+  <div id="gemazPayStatus" class="gemaz-pay-status"></div>
+  <button id="gemazPayButton" class="auth-submit" style="width:100%;margin-top:11px" onclick="gemazPayNow()">Ödənişə keç</button>
+</div>
+</body>
+</html>
